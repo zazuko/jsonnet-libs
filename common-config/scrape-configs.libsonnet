@@ -158,6 +158,7 @@ local p = import 'monitoring-utils/prometheus.libsonnet';
     relabel_configs+: [
       p.relabel.match({
         [p.service_name]: 'ingress-nginx-controller-metrics',
+        [p.endpoint_port_name]: 'metrics',
       }),
     ],
   },
