@@ -3,27 +3,27 @@ local p = import 'monitoring-utils/prometheus.libsonnet';
 {
   local configs = self,
 
-  cluster_components: [
-    configs.cilium,
-    configs.coredns,
-    configs.kube_apiserver,
-    configs.kubelet,
-    configs.cadvisor,
-    configs.kube_proxy,
+  cluster_components(): [
+    configs.cilium(),
+    configs.coredns(),
+    configs.kube_apiserver(),
+    configs.kubelet(),
+    configs.cadvisor(),
+    configs.kube_proxy(),
   ],
 
-  monitoring_stack: [
-    configs.prometheus,
-    configs.thanos_sidecar,
-    configs.alertmanager,
-    configs.kube_state_metrics,
-    configs.node_exporter,
+  monitoring_stack(): [
+    configs.prometheus(),
+    configs.thanos_sidecar(),
+    configs.alertmanager(),
+    configs.kube_state_metrics(),
+    configs.node_exporter(),
   ],
 
-  common_apps: [
-    configs.ingress_nginx,
-    configs.cert_manager,
-    configs.external_dns,
+  common_apps(): [
+    configs.ingress_nginx(),
+    configs.cert_manager(),
+    configs.external_dns(),
   ],
 
   prometheus(namespaces=['monitoring']): p.sd.kubernetes('endpoints', namespaces=namespaces) {
@@ -59,7 +59,7 @@ local p = import 'monitoring-utils/prometheus.libsonnet';
   },
 
   // cilium is the network plugin used by DigitalOcean
-  cilium: p.sd.kubernetes('pod', namespaces=['kube-system']) {
+  cilium(): p.sd.kubernetes('pod', namespaces=['kube-system']) {
     job_name: 'cilium',
     relabel_configs+: [
       p.relabel.match({
@@ -70,7 +70,7 @@ local p = import 'monitoring-utils/prometheus.libsonnet';
   },
 
   // CoreDNS is Kubernetes' internal DNS
-  coredns: p.sd.kubernetes('endpoints', namespaces=['kube-system']) {
+  coredns(): p.sd.kubernetes('endpoints', namespaces=['kube-system']) {
     job_name: 'coredns',
     relabel_configs+: [
       p.relabel.match({
@@ -81,7 +81,7 @@ local p = import 'monitoring-utils/prometheus.libsonnet';
   },
 
   // Kube APIServer
-  kube_apiserver: p.sd.kubernetes('endpoints', namespaces=['default'], relabel=false) + p.kube_api {
+  kube_apiserver(): p.sd.kubernetes('endpoints', namespaces=['default'], relabel=false) + p.kube_api {
     job_name: 'kube-apiserver',
     relabel_configs+: [
       p.relabel.match({
@@ -92,7 +92,7 @@ local p = import 'monitoring-utils/prometheus.libsonnet';
   },
 
   // Kubelet
-  kubelet: p.sd.kubernetes('node') + p.kube_api {
+  kubelet(): p.sd.kubernetes('node') + p.kube_api {
     job_name: 'kubelet',
     relabel_configs+: [
       p.relabel.replace(
@@ -104,7 +104,7 @@ local p = import 'monitoring-utils/prometheus.libsonnet';
   },
 
   // Cadvisor exposes metrics about the containers running on the host
-  cadvisor: p.sd.kubernetes('node') + p.kube_api {
+  cadvisor(): p.sd.kubernetes('node') + p.kube_api {
     job_name: 'cadvisor',
     relabel_configs+: [
       p.relabel.replace(
@@ -116,7 +116,7 @@ local p = import 'monitoring-utils/prometheus.libsonnet';
   },
 
   // kube-proxy is respondible of service network routing
-  kube_proxy: p.sd.kubernetes('pod') {
+  kube_proxy(): p.sd.kubernetes('pod') {
     job_name: 'kube-proxy',
     relabel_configs+: [
       p.relabel.match({
@@ -128,7 +128,7 @@ local p = import 'monitoring-utils/prometheus.libsonnet';
   },
 
   // kube-state-metrics gathers stats about the objects within the cluster
-  kube_state_metrics: p.sd.kubernetes('service', namespaces=['kube-system'], relabel=false) {
+  kube_state_metrics(): p.sd.kubernetes('service', namespaces=['kube-system'], relabel=false) {
     job_name: 'kube-state-metrics',
     relabel_configs+: [
       p.relabel.match({
