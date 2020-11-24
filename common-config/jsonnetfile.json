@@ -3,11 +3,12 @@
   "dependencies": [
     {
       "source": {
-        "local": {
-          "directory": "../monitoring-utils"
+        "git": {
+          "remote": "https://github.com/zazuko/jsonnet-libs.git",
+          "subdir": "monitoring-utils"
         }
       },
-      "version": ""
+      "version": "master"
     }
   ],
   "legacyImports": true
