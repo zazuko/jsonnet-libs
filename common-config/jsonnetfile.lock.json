@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "dependencies": [
+    {
+      "source": {
+        "local": {
+          "directory": "../monitoring-utils"
+        }
+      },
+      "version": ""
+    }
+  ],
+  "legacyImports": false
+}
