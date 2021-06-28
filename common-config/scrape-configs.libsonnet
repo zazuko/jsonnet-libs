@@ -8,7 +8,9 @@ local p = import 'monitoring-utils/prometheus.libsonnet';
     configs.coredns(),
     configs.kube_apiserver(),
     configs.kubelet(),
-    configs.cadvisor(),
+    configs.kubelet_cadvisor(),
+    configs.kubelet_resource(),
+    configs.kubelet_probes(),
     configs.kube_proxy(),
   ],
 
@@ -89,6 +91,13 @@ local p = import 'monitoring-utils/prometheus.libsonnet';
         [p.endpoint_port_name]: 'https',
       }),
     ],
+    metric_relabel_configs+: [
+      // Drop 25 unused buckets, which makes about 9400 series
+      p.relabel.match({
+        __name__: 'apiserver_request_duration_seconds_bucket',
+        le: '(0.15|0.25|0.3|0.35|0.4|0.45|0.6|0.7|0.8|0.9|1.25|1.5|1.75|2.5|3|3.5|4.5|6|7|8|9|15|25|30|50)',
+      }, action='drop'),
+    ],
   },
 
   // Kubelet
@@ -104,8 +113,8 @@ local p = import 'monitoring-utils/prometheus.libsonnet';
   },
 
   // Cadvisor exposes metrics about the containers running on the host
-  cadvisor(): p.sd.kubernetes('node') + p.kube_api {
-    job_name: 'cadvisor',
+  kubelet_cadvisor(): p.sd.kubernetes('node') + p.kube_api {
+    job_name: 'kubelet-cadvisor',
     relabel_configs+: [
       p.relabel.replace(
         [p.node_name],
@@ -114,6 +123,29 @@ local p = import 'monitoring-utils/prometheus.libsonnet';
       ),
     ],
   },
+
+  kubelet_resource(): p.sd.kubernetes('node') + p.kube_api {
+    job_name: 'kubelet-resource',
+    relabel_configs+: [
+      p.relabel.replace(
+        [p.node_name],
+        '__metrics_path__',
+        replacement='/api/v1/nodes/$1/proxy/metrics/resource',
+      ),
+    ],
+  },
+
+  kubelet_probes(): p.sd.kubernetes('node') + p.kube_api {
+    job_name: 'kubelet-probes',
+    relabel_configs+: [
+      p.relabel.replace(
+        [p.node_name],
+        '__metrics_path__',
+        replacement='/api/v1/nodes/$1/proxy/metrics/probes',
+      ),
+    ],
+  },
+
 
   // kube-proxy is respondible of service network routing
   kube_proxy(): p.sd.kubernetes('pod') {

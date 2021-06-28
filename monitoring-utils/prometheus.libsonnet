@@ -29,8 +29,8 @@ local SA_PATH = '/var/run/secrets/kubernetes.io/serviceaccount';
       action: 'labelmap',
       regex: f(util.label('(.+)')),
     },
-    match(map):: {
-      action: 'keep',
+    match(map, action='keep'):: {
+      action: action,
       separator: ';',
       regex: std.join(';', [
         map[key]
