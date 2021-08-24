@@ -16,16 +16,27 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 1,
-  "id": 59,
-  "iteration": 1616445892702,
+  "id": 429,
+  "iteration": 1629795788777,
   "links": [],
   "panels": [
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 24,
+      "title": "Big stats",
+      "type": "row"
+    },
     {
       "datasource": "$datasource",
       "description": "The number of certificates in the ready state.",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -68,13 +79,13 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 0
+        "y": 1
       },
       "id": 2,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
-        "justifyMode": "auto",
+        "justifyMode": "center",
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
@@ -86,10 +97,11 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "7.4.5",
+      "pluginVersion": "8.0.2",
       "targets": [
         {
-          "expr": "sum by (condition) (certmanager_certificate_ready_status)",
+          "exemplar": true,
+          "expr": "sum by (condition) (certmanager_certificate_ready_status{cluster=~\"$cluster\"})",
           "interval": "",
           "legendFormat": "{{condition}}",
           "refId": "A"
@@ -104,7 +116,6 @@
       "datasource": "$datasource",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "decimals": 1,
           "mappings": [],
           "thresholds": {
@@ -132,7 +143,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 0
+        "y": 1
       },
       "id": 4,
       "options": {
@@ -150,10 +161,11 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "7.4.5",
+      "pluginVersion": "8.0.2",
       "targets": [
         {
-          "expr": "min(certmanager_certificate_expiration_timestamp_seconds > 0) - time()",
+          "exemplar": true,
+          "expr": "min(certmanager_certificate_expiration_timestamp_seconds{cluster=~\"$cluster\"} > 0) - time()",
           "hide": false,
           "instant": true,
           "interval": "",
@@ -175,23 +187,35 @@
       "type": "stat"
     },
     {
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 9
+      },
+      "id": 22,
+      "title": "Detailed stats",
+      "type": "row"
+    },
+    {
       "datasource": "$datasource",
       "description": "Status of the certificates. Values are True, False or Unknown.",
       "fieldConfig": {
         "defaults": {
           "custom": {
             "align": null,
+            "displayMode": "auto",
             "filterable": false
           },
           "mappings": [
             {
-              "from": "",
-              "id": 0,
-              "operator": "",
-              "text": "Yes",
-              "to": "",
-              "type": 1,
-              "value": ""
+              "options": {
+                "": {
+                  "text": "Yes"
+                }
+              },
+              "type": "value"
             }
           ],
           "thresholds": {
@@ -252,7 +276,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 8
+        "y": 10
       },
       "id": 9,
       "options": {
@@ -264,10 +288,11 @@
           }
         ]
       },
-      "pluginVersion": "7.4.5",
+      "pluginVersion": "8.0.2",
       "targets": [
         {
-          "expr": "label_join(avg by (name, namespace, condition, exported_namespace) (certmanager_certificate_ready_status == 1), \"namespaced_name\", \"-\", \"namespace\", \"exported_namespace\", \"name\")",
+          "exemplar": true,
+          "expr": "label_join(avg by (name, namespace, condition, exported_namespace, cluster) (certmanager_certificate_ready_status == 1), \"namespaced_name\", \"-\", \"namespace\", \"exported_namespace\", \"name\")",
           "format": "table",
           "instant": true,
           "interval": "",
@@ -275,7 +300,8 @@
           "refId": "A"
         },
         {
-          "expr": "label_join(avg by (name, namespace, exported_namespace) (certmanager_certificate_expiration_timestamp_seconds) * 1000, \"namespaced_name\", \"-\", \"namespace\", \"exported_namespace\", \"name\")",
+          "exemplar": true,
+          "expr": "label_join(avg by (name, namespace, exported_namespace, cluster) (certmanager_certificate_expiration_timestamp_seconds) * 1000, \"namespaced_name\", \"-\", \"namespace\", \"exported_namespace\", \"name\")",
           "format": "table",
           "instant": true,
           "interval": "",
@@ -301,30 +327,32 @@
               "Time 1": true,
               "Time 2": true,
               "Value #A": true,
+              "cluster 2": true,
               "exported_namespace": false,
               "exported_namespace 1": false,
               "exported_namespace 2": true,
               "name 1": true,
-              "namespaced_name": true,
-              "namespace 2": true
+              "namespace 2": true,
+              "namespaced_name": true
             },
             "indexByName": {
-              "Time 1": 8,
-              "Time 2": 10,
-              "Value #A": 6,
-              "Value #B": 5,
-              "condition": 4,
-              "exported_namespace 1": 1,
-              "exported_namespace 2": 11,
-              "name 1": 9,
-              "name 2": 3,
-              "namespace": 0,
-              "namespaced_name": 7,
-              "namespace 1": 2
+              "Time 1": 7,
+              "Time 2": 9,
+              "Value #A": 5,
+              "Value #B": 4,
+              "cluster 1": 0,
+              "cluster 2": 10,
+              "condition": 3,
+              "name 1": 8,
+              "name 2": 2,
+              "namespace 1": 1,
+              "namespace 2": 11,
+              "namespaced_name": 6
             },
             "renameByName": {
-	      "Time 1": "",
+              "Time 1": "",
               "Value #B": "Valid Until",
+              "cluster 1": "Cluster",
               "condition": "Ready Status",
               "exported_namespace": "Certificate Namespace",
               "exported_namespace 1": "Certificate Namespace",
@@ -332,8 +360,8 @@
               "name": "Certificate",
               "name 2": "Certificate",
               "namespace": "Namespace",
-              "namespaced_name": "",
-              "namespace 1": "Namespace"
+              "namespace 1": "Namespace",
+              "namespaced_name": ""
             }
           }
         }
@@ -349,7 +377,6 @@
       "description": "The rate of controller sync requests.",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "links": []
         },
         "overrides": []
@@ -360,7 +387,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 8
+        "y": 10
       },
       "hiddenSeries": false,
       "id": 7,
@@ -382,7 +409,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.4.5",
+      "pluginVersion": "8.0.2",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -392,7 +419,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum by (controller) (\n  rate(certmanager_controller_sync_call_count[$__rate_interval])\n)",
+          "exemplar": true,
+          "expr": "sum by (controller) (\n  rate(certmanager_controller_sync_call_count{cluster=~\"$cluster\"}[$__rate_interval])\n)",
           "interval": "",
           "legendFormat": "{{controller}}",
           "refId": "A"
@@ -448,7 +476,6 @@
       "description": "Rate of requests to ACME provider.",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "links": []
         },
         "overrides": []
@@ -459,7 +486,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 16
+        "y": 18
       },
       "hiddenSeries": false,
       "id": 6,
@@ -483,7 +510,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.4.5",
+      "pluginVersion": "8.0.2",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -493,7 +520,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum by (method, path, status) (\n  rate(certmanager_http_acme_client_request_count[$__rate_interval])\n)",
+          "exemplar": true,
+          "expr": "sum by (method, path, status) (\n  rate(certmanager_http_acme_client_request_count{cluster=~\"$cluster\"}[$__rate_interval])\n)",
           "interval": "",
           "legendFormat": "{{method}} {{path}} {{status}}",
           "refId": "A"
@@ -549,7 +577,6 @@
       "description": "Average duration of requests to ACME provider. ",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "links": []
         },
         "overrides": []
@@ -560,7 +587,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 16
+        "y": 18
       },
       "hiddenSeries": false,
       "id": 10,
@@ -584,7 +611,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.4.5",
+      "pluginVersion": "8.0.2",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -594,7 +621,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum by (method, path, status) (rate(certmanager_http_acme_client_request_duration_seconds_sum[$__rate_interval]))\n/\nsum by (method, path, status) (rate(certmanager_http_acme_client_request_duration_seconds_count[$__rate_interval]))",
+          "exemplar": true,
+          "expr": "sum by (method, path, status) (rate(certmanager_http_acme_client_request_duration_seconds_sum{cluster=~\"$cluster\"}[$__rate_interval]))\n/\nsum by (method, path, status) (rate(certmanager_http_acme_client_request_duration_seconds_count{cluster=~\"$cluster\"}[$__rate_interval]))",
           "interval": "",
           "legendFormat": "{{method}} {{path}} {{status}}",
           "refId": "A"
@@ -642,6 +670,20 @@
       }
     },
     {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 26
+      },
+      "id": 20,
+      "panels": [],
+      "title": "Pod resource usage",
+      "type": "row"
+    },
+    {
       "aliasColors": {
         "max": "dark-yellow"
       },
@@ -652,7 +694,6 @@
       "description": "CPU Usage and limits, as percent of a vCPU core. ",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "links": []
         },
         "overrides": []
@@ -663,7 +704,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 24
+        "y": 27
       },
       "hiddenSeries": false,
       "id": 12,
@@ -686,7 +727,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.4.5",
+      "pluginVersion": "8.0.2",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -712,7 +753,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "avg by (pod) (rate(container_cpu_usage_seconds_total{container=\"cert-manager\"}[$__rate_interval]))",
+          "exemplar": true,
+          "expr": "avg by (pod) (rate(container_cpu_usage_seconds_total{container=\"cert-manager\",cluster=~\"$cluster\"}[$__rate_interval]))",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -721,7 +763,8 @@
           "refId": "A"
         },
         {
-          "expr": "avg by (pod) (kube_pod_container_resource_limits_cpu_cores{container=\"cert-manager\"})",
+          "exemplar": true,
+          "expr": "avg by (pod) (kube_pod_container_resource_limits_cpu_cores{container=\"cert-manager\",cluster=~\"$cluster\"})",
           "format": "time_series",
           "hide": true,
           "interval": "",
@@ -730,7 +773,8 @@
           "refId": "B"
         },
         {
-          "expr": "avg by (pod) (kube_pod_container_resource_requests_cpu_cores{container=\"cert-manager\"})",
+          "exemplar": true,
+          "expr": "avg by (pod) (kube_pod_container_resource_requests_cpu_cores{container=\"cert-manager\",cluster=~\"$cluster\"})",
           "format": "time_series",
           "hide": true,
           "interval": "",
@@ -791,7 +835,6 @@
       "description": "Percent of the time that the CPU is being throttled. Higher is badderer. ",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "links": []
         },
         "overrides": []
@@ -802,7 +845,7 @@
         "h": 8,
         "w": 6,
         "x": 6,
-        "y": 24
+        "y": 27
       },
       "hiddenSeries": false,
       "id": 14,
@@ -825,7 +868,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.4.5",
+      "pluginVersion": "8.0.2",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -841,7 +884,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "avg by (pod) (\n  rate(container_cpu_cfs_throttled_periods_total{container=\"cert-manager\"}[$__rate_interval])\n  /\n  rate(container_cpu_cfs_periods_total{container=\"cert-manager\"}[$__rate_interval])\n)",
+          "exemplar": true,
+          "expr": "avg by (pod) (\n  rate(container_cpu_cfs_throttled_periods_total{container=\"cert-manager\",cluster=~\"$cluster\"}[$__rate_interval])\n  /\n  rate(container_cpu_cfs_periods_total{container=\"cert-manager\",cluster=~\"$cluster\"}[$__rate_interval])\n)",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -902,7 +946,6 @@
       "description": "Memory utilisation and limits.",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "links": []
         },
         "overrides": []
@@ -913,7 +956,7 @@
         "h": 8,
         "w": 6,
         "x": 12,
-        "y": 24
+        "y": 27
       },
       "hiddenSeries": false,
       "id": 16,
@@ -936,7 +979,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.4.5",
+      "pluginVersion": "8.0.2",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -962,7 +1005,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "avg by (pod) (container_memory_usage_bytes{container=\"cert-manager\"})",
+          "exemplar": true,
+          "expr": "avg by (pod) (container_memory_usage_bytes{container=\"cert-manager\",cluster=~\"$cluster\"})",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -971,7 +1015,8 @@
           "refId": "A"
         },
         {
-          "expr": "avg by (pod) (kube_pod_container_resource_limits_memory_bytes{container=\"cert-manager\"})",
+          "exemplar": true,
+          "expr": "avg by (pod) (kube_pod_container_resource_limits_memory_bytes{container=\"cert-manager\",cluster=~\"$cluster\"})",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -979,7 +1024,8 @@
           "refId": "B"
         },
         {
-          "expr": "avg by (pod) (kube_pod_container_resource_requests_memory_bytes{container=\"cert-manager\"})",
+          "exemplar": true,
+          "expr": "avg by (pod) (kube_pod_container_resource_requests_memory_bytes{container=\"cert-manager\",cluster=~\"$cluster\"})",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -1039,7 +1085,6 @@
       "description": "Network ingress/egress.",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "links": []
         },
         "overrides": []
@@ -1050,7 +1095,7 @@
         "h": 8,
         "w": 6,
         "x": 18,
-        "y": 24
+        "y": 27
       },
       "hiddenSeries": false,
       "id": 18,
@@ -1072,7 +1117,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.4.5",
+      "pluginVersion": "8.0.2",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1087,7 +1132,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "avg(\n  sum without (interface) (\n    rate(container_network_receive_bytes_total{namespace=\"cert-manager\"}[$__rate_interval])\n  )\n)",
+          "exemplar": true,
+          "expr": "avg(\n  sum without (interface) (\n    rate(container_network_receive_bytes_total{namespace=\"cert-manager\",cluster=~\"$cluster\"}[$__rate_interval])\n  )\n)",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -1096,7 +1142,8 @@
           "refId": "A"
         },
         {
-          "expr": "avg(\n  sum without (interface) (\n    rate(container_network_transmit_bytes_total{namespace=\"cert-manager\"}[$__rate_interval])\n  )\n)",
+          "exemplar": true,
+          "expr": "avg(\n  sum without (interface) (\n    rate(container_network_transmit_bytes_total{namespace=\"cert-manager\",cluster=~\"$cluster\"}[$__rate_interval])\n  )\n)",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -1148,7 +1195,7 @@
     }
   ],
   "refresh": "1m",
-  "schemaVersion": 27,
+  "schemaVersion": 30,
   "style": "dark",
   "tags": [
     "cert-manager",
@@ -1159,8 +1206,8 @@
       {
         "current": {
           "selected": false,
-          "text": "prometheus",
-          "value": "prometheus"
+          "text": "Prometheus",
+          "value": "Prometheus"
         },
         "description": null,
         "error": null,
@@ -1176,6 +1223,37 @@
         "regex": "",
         "skipUrlSync": false,
         "type": "datasource"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": "Prometheus",
+        "definition": "label_values(kube_pod_info, cluster)",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "cluster",
+        "multi": true,
+        "name": "cluster",
+        "options": [],
+        "query": {
+          "query": "label_values(kube_pod_info, cluster)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
       }
     ]
   },
@@ -1198,6 +1276,5 @@
   },
   "timezone": "",
   "title": "cert-manager",
-  "uid": "TvuRo2iMk",
-  "version": 1
+  "uid": "A5Nvhq7nz"
 }
