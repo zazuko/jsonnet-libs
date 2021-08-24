@@ -205,12 +205,12 @@ local p = import 'monitoring-utils/prometheus.libsonnet';
     ],
   },
 
-  flux(namespaces=['flux-system']): p.sd.kubernetes.('pod', namespaces=namespaces) {
+  flux(namespaces=['flux-system']): p.sd.kubernetes('pod', namespaces=namespaces) {
     job_name: 'flux',
     relabel_configs+: [
       p.relabel.match({
         [p.pod('container_port_name')]: 'http-prom',
-      })
+      }),
     ],
-  }
+  },
 }
