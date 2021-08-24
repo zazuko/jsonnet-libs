@@ -205,7 +205,7 @@ local p = import 'monitoring-utils/prometheus.libsonnet';
     ],
   },
 
-  flux(namespaces=['flux-system']): p.sd.kubernetes('pod', namespaces=namespaces) {
+  flux(namespaces=['flux-system']): p.sd.kubernetes('pod', namespaces=namespaces, relabel=false) {
     job_name: 'flux',
     relabel_configs+: [
       p.relabel.match({
