@@ -16,7 +16,6 @@ local p = import 'monitoring-utils/prometheus.libsonnet';
 
   monitoring_stack(): [
     configs.prometheus(),
-    configs.thanos_sidecar(),
     configs.alertmanager(),
     configs.kube_state_metrics(),
     configs.node_exporter(),
@@ -26,6 +25,7 @@ local p = import 'monitoring-utils/prometheus.libsonnet';
     configs.ingress_nginx(),
     configs.cert_manager(),
     configs.external_dns(),
+    configs.flux(),
   ],
 
   prometheus(namespaces=['monitoring']): p.sd.kubernetes('endpoints', namespaces=namespaces) {
@@ -34,17 +34,6 @@ local p = import 'monitoring-utils/prometheus.libsonnet';
       p.relabel.match({
         [p.pod(p.label('app.kubernetes.io/name'))]: 'prometheus',
         [p.endpoint_port_name]: 'http',
-      }),
-    ],
-  },
-
-  // Thanos sidecar on prometheus pods
-  thanos_sidecar(namespaces=['monitoring']): p.sd.kubernetes('endpoints', namespaces=namespaces) {
-    job_name: 'thanos-sidecar',
-    relabel_configs+: [
-      p.relabel.match({
-        [p.pod(p.label('app.kubernetes.io/name'))]: 'prometheus',
-        [p.endpoint_port_name]: 'thanos-http',
       }),
     ],
   },
@@ -200,8 +189,8 @@ local p = import 'monitoring-utils/prometheus.libsonnet';
     job_name: 'cert-manager',
     relabel_configs+: [
       p.relabel.match({
-        [p.pod(p.label('app.kubernetes.io/name'))]: 'cert-manager',
-        [p.pod(p.label('app.kubernetes.io/component'))]: 'controller',
+        [p.service(p.label('app.kubernetes.io/name'))]: 'cert-manager',
+        [p.service(p.label('app.kubernetes.io/component'))]: 'controller',
       }),
     ],
   },
@@ -215,4 +204,13 @@ local p = import 'monitoring-utils/prometheus.libsonnet';
       }),
     ],
   },
+
+  flux(namespaces=['flux-system']): p.sd.kubernetes.('pod', namespaces=namespaces) {
+    job_name: 'flux',
+    relabel_configs+: [
+      p.relabel.match({
+        [p.pod('container_port_name')]: 'http-prom',
+      })
+    ],
+  }
 }
