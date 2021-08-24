@@ -7,7 +7,7 @@
           {
             alert: 'CertificateWillExpire',
             expr: |||
-              (min without (instance) (certmanager_certificate_expiration_timestamp_seconds{}) - certmanager_clock_time_seconds) / 3600 / 24 < 7
+              (min without (instance) (certmanager_certificate_expiration_timestamp_seconds{}) - time()) / 3600 / 24 < 7
             |||,
             labels: {
               severity: 'warning',
@@ -20,7 +20,7 @@
           {
             alert: 'CertificateExpired',
             expr: |||
-              min without (instance) (certmanager_certificate_expiration_timestamp_seconds{}) < certmanager_clock_time_seconds
+              min without (instance) (certmanager_certificate_expiration_timestamp_seconds{}) < time()
             |||,
             labels: {
               severity: 'critical',
