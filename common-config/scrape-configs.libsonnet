@@ -219,6 +219,7 @@ local p = import 'monitoring-utils/prometheus.libsonnet';
     job_name: 'opentelemetry',
     relabel_configs+: [
       p.relabel.match({
+        [p.pod(p.label('app.kubernetes.io/name'))]: 'opentelemetry',
         [p.pod('container_port_name')]: 'metrics-http',
       }),
     ],
