@@ -19,6 +19,7 @@ local p = import 'monitoring-utils/prometheus.libsonnet';
     configs.alertmanager(),
     configs.kube_state_metrics(),
     configs.node_exporter(),
+    configs.otel(),
   ],
 
   common_apps(): [
@@ -210,6 +211,15 @@ local p = import 'monitoring-utils/prometheus.libsonnet';
     relabel_configs+: [
       p.relabel.match({
         [p.pod('container_port_name')]: 'http-prom',
+      }),
+    ],
+  },
+
+  otel(namespaces=['monitoring']): p.sd.kubernetes('pod', namespaces=namespaces, relabel=false) {
+    job_name: 'opentelemetry',
+    relabel_configs+: [
+      p.relabel.match({
+        [p.pod('container_port_name')]: 'metrics-http',
       }),
     ],
   },
